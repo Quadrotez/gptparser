@@ -4,8 +4,7 @@ from pyrogram.errors import PasswordHashInvalid
 from pyrogram.errors.exceptions.unauthorized_401 import SessionPasswordNeeded
 from pyrogram.errors.exceptions.not_acceptable_406 import PhoneNumberInvalid
 from pyrogram.errors.exceptions.bad_request_400 import PhoneCodeInvalid
-from pyrogram import Client
-from g4f.client import Client as gClient
+from pyrogram import Client, types
 
 
 def gen_config():
@@ -24,6 +23,12 @@ def gen_config():
 
 def init():
     gen_config() if not os.path.exists('config.ini') else ''
+    with open('channels.txt', 'r', encoding='UTF-8') as file:
+        lines = file.readlines()
+
+    with open('channels.txt', 'w', encoding='UTF-8') as file:
+        file.writelines(line for line in lines if line.rstrip())
+
     open('black_list.txt', 'w').write('') if not os.path.exists('black_list.txt') else ''
     os.mkdir('sessions') if not os.path.exists('sessions') else ''
 
@@ -53,7 +58,6 @@ def gen_sess(name_sess):
             print('Код неправильный!')
             phone_code = input("Введите код: ")
 
-
         except SessionPasswordNeeded:
             password = input("У вас стоит пароль. Введите его: ")
             while True:
@@ -65,4 +69,26 @@ def gen_sess(name_sess):
                     password = input("Введите пароль: ")
 
     app.disconnect()
+    if input('Хотели бы вы использовать эту сессию по умолчанию? (y/n): ').lower() == 'y':
+        config['GENERAl']['DEFAULT'] = name_sess
+        config.write(open('config.ini', 'w', encoding='UTF-8'))
 
+
+async def check_flags(message: types.Message):
+    conditions = {
+        'imagehasnocaption': (not message.caption and bool(message.photo)),
+        'videohasnocaption': (not message.caption and bool(message.video)),
+        'isvideo': (bool(message.video)),
+        'isphoto': (bool(message.photo))
+    }
+
+    (config := ConfigParser()).read('config.ini', encoding='UTF-8')
+
+    if not config.has_section('FLAGS'):
+        return True
+
+    for i in config.options('FLAGS'):
+        if conditions[i] and config['FLAGS'][i] == 'False':
+            return False
+
+    return True
