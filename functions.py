@@ -78,8 +78,13 @@ async def check_flags(message: types.Message):
     conditions = {
         'imagehasnocaption': (not message.caption and bool(message.photo)),
         'videohasnocaption': (not message.caption and bool(message.video)),
+        'posthasnocaption': (not message.caption),
         'isvideo': (bool(message.video)),
-        'isphoto': (bool(message.photo))
+        'isphoto': (bool(message.photo)),
+        'isvoice': (bool(message.voice)),
+        'isdocument': (bool(message.document)),
+        'isgif': (bool(message.animation)),
+        'issticker': (bool(message.sticker))
     }
 
     (config := ConfigParser()).read('config.ini', encoding='UTF-8')
