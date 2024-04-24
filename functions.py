@@ -23,6 +23,9 @@ def gen_config():
 
 def init():
     gen_config() if not os.path.exists('config.ini') else ''
+
+    open('channels.txt', 'w').write('') if not os.path.exists('channels.txt') else ''
+
     with open('channels.txt', 'r', encoding='UTF-8') as file:
         lines = file.readlines()
 
