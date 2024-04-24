@@ -80,7 +80,7 @@ async def check_flags(message: types.Message):
         'videohasnocaption': (not message.caption and bool(message.video)),
         'posthasnocaption': (not message.caption),
         'isvideo': (bool(message.video)),
-        'isphoto': (bool(message.photo)),
+        'isimage': (bool(message.photo)),
         'isvoice': (bool(message.voice)),
         'isdocument': (bool(message.document)),
         'isgif': (bool(message.animation)),
@@ -93,7 +93,10 @@ async def check_flags(message: types.Message):
         return True
 
     for i in config.options('FLAGS'):
-        if conditions[i] and config['FLAGS'][i] == 'False':
-            return False
+        try:
+            if conditions[i] and config['FLAGS'][i] == 'False':
+                return False
+        except KeyError:
+            print(f'Похоже, вы добавили несуществующий флаг: {i}')
 
     return True
