@@ -1,5 +1,5 @@
 from configparser import ConfigParser
-import os, asyncio
+import os, asyncio, traceback, time, threading
 from pyrogram.errors import PasswordHashInvalid
 from pyrogram.errors.exceptions.unauthorized_401 import SessionPasswordNeeded
 from pyrogram.errors.exceptions.not_acceptable_406 import PhoneNumberInvalid
@@ -101,3 +101,27 @@ async def check_flags(message: types.Message):
             print(f'Похоже, вы добавили несуществующий флаг: {i}')
 
     return True
+
+
+alr = False
+
+
+def sleepflood():
+    global alr
+    (config := ConfigParser()).read('config.ini', encoding='UTF-8')
+    config.read('config.ini', encoding='UTF-8')
+    if not alr:
+        alr = True
+        last_line = int(str(traceback.format_exc().splitlines()[-1])[93:].split()[0]) if \
+        str(traceback.format_exc().splitlines()[-1])[93:].split()[0] != 'None' else 0
+        print(f'FloodWaitError! Подождите {last_line}с')
+
+        def func_sleep():
+            time.sleep(1)
+
+        for i in range(last_line):
+            thread = threading.Thread(target=func_sleep)
+            thread.start()
+            thread.join()
+
+        alr = False
